@@ -21,53 +21,57 @@ export function LogoMark({
     >
       <defs>
         <linearGradient
-          id="nx-s"
+          id="nx-vio"
           x1="10"
           y1="38"
           x2="38"
           y2="10"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#6354E6" />
+          <stop stopColor="#6F5FEE" />
           <stop offset="0.55" stopColor="#9A8DFF" />
-          <stop offset="1" stopColor="#B3A8FF" />
+          <stop offset="1" stopColor="#B9AEFF" />
         </linearGradient>
-        <radialGradient id="nx-n" cx="0.5" cy="0.5" r="0.5">
-          <stop stopColor="#5BFFD2" />
-          <stop offset="1" stopColor="#13C99B" />
+        <linearGradient
+          id="nx-core"
+          x1="18"
+          y1="18"
+          x2="30"
+          y2="30"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#8576FF" />
+          <stop offset="1" stopColor="#5E4FE0" />
+        </linearGradient>
+        <radialGradient id="nx-cip" cx="0.5" cy="0.5" r="0.5">
+          <stop stopColor="#6AFFD6" />
+          <stop offset="1" stopColor="#16C99B" />
         </radialGradient>
       </defs>
-      <path
-        d="M13 37 V13 L35 35 V11"
-        stroke="url(#nx-s)"
-        strokeWidth="5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="24" cy="24" r="3.4" fill="url(#nx-n)" />
+      <g
+        className={spin ? "animate-[spin_6s_linear_infinite]" : ""}
+        transform={spin ? undefined : "rotate(-28 24 24)"}
+        style={{ transformOrigin: "24px 24px" }}
+      >
+        <ellipse
+          cx="24"
+          cy="24"
+          rx="13"
+          ry="6"
+          stroke="url(#nx-vio)"
+          strokeWidth="2"
+          fill="none"
+        />
+        <circle cx="37" cy="24" r="2.6" fill="url(#nx-cip)" />
+      </g>
+      <circle cx="24" cy="24" r="5" fill="url(#nx-core)" />
       <circle
         cx="24"
         cy="24"
-        r="6.2"
-        stroke="#2BF0BE"
-        strokeOpacity="0.35"
-        strokeWidth="1.2"
-        className={spin ? "origin-center animate-[spin_8s_linear_infinite]" : ""}
-        style={{ transformBox: "fill-box" }}
-      />
-      <path
-        d="M7 24 H10.5"
-        stroke="#9A8DFF"
-        strokeOpacity="0.55"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M37.5 24 H41"
-        stroke="#9A8DFF"
-        strokeOpacity="0.55"
-        strokeWidth="2"
-        strokeLinecap="round"
+        r="5"
+        stroke="#B9AEFF"
+        strokeOpacity="0.6"
+        strokeWidth="0.9"
       />
     </svg>
   );
