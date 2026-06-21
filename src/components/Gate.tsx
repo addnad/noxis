@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { LogoMark } from "./Logo";
 import { DecryptText } from "./DecryptText";
-import { StatusStrip, useStatus } from "./StatusBar";
 import {
   isVaultInitialized,
   createVault,
@@ -40,7 +39,6 @@ export function Gate({ onEnter }: { onEnter: () => void }) {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const { status } = useStatus();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -221,9 +219,16 @@ export function Gate({ onEnter }: { onEnter: () => void }) {
         </motion.div>
       </div>
 
-      {/* status footer */}
-      <div className="mt-2 border-t border-violet-500/10 pt-5">
-        <StatusStrip status={status} />
+      {/* trust footer */}
+      <div className="mono mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/[0.06] pt-5 text-[11px] text-mist-400">
+        <span className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-cipher-500 shadow-[0_0_8px_rgba(43,240,190,0.7)]" />
+          0G Galileo Testnet
+        </span>
+        <span className="text-mist-500">·</span>
+        <span>AES-256 · client-side</span>
+        <span className="text-mist-500">·</span>
+        <span>keys never leave your device</span>
       </div>
     </main>
   );

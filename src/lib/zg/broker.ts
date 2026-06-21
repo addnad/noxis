@@ -1,7 +1,7 @@
 import "server-only";
 import { ethers } from "ethers";
-import { createZGComputeNetworkBroker } from "@0glabs/0g-serving-broker";
-import OpenAI from "openai";
+// Type-only import (erased at runtime) — the value is loaded dynamically below.
+import type { createZGComputeNetworkBroker as CreateBrokerFn } from "@0gfoundation/0g-compute-ts-sdk";
 import {
   ZG_EVM_RPC,
   ZG_COMPUTE_PROVIDER,
@@ -10,7 +10,19 @@ import {
   KNOWN_PROVIDERS,
 } from "./config";
 
-type Broker = Awaited<ReturnType<typeof createZGComputeNetworkBroker>>;
+type Broker = Awaited<ReturnType<typeof CreateBrokerFn>>;
+
+// Static ESM imports of the 0G SDK shim fail to resolve named exports under
+// Vercel's serverless runtime ("does not provide an export named ..."). We load
+// the real package lazily at call time and tolerate a namespace OR default export.
+async function loadCreateBroker(): Promise<typeof CreateBrokerFn> {
+  const mod = (await import("@0gfoundation/0g-compute-ts-sdk")) as Record<
+    string,
+    unknown
+  > & { default?: Record<string, unknown> };
+  const fn = mod.createZGComputeNetworkBroker ?? mod.default?.createZGComputeNetworkBroker;
+  return fn as typeof CreateBrokerFn;
+}
 
 // Cache across serverless invocations (warm lambdas reuse the broker).
 const g = globalThis as unknown as {
@@ -42,7 +54,8 @@ export function getWallet(): ethers.Wallet {
 
 export async function getBroker(): Promise<Broker> {
   if (!g.__noxisBroker) {
-    g.__noxisBroker = await createZGComputeNetworkBroker(getWallet());
+    const createBroker = await loadCreateBroker();
+    g.__noxisBroker = await createBroker(getWallet());
   }
   return g.__noxisBroker;
 }
@@ -146,6 +159,19 @@ export async function runInference(
     [...messages].reverse().find((m) => m.role === "user")?.content || "";
   const headers = await broker.inference.getRequestHeaders(provider, lastUser);
 
+  const OpenAIMod = (await import("openai")) as { default?: unknown };
+  const OpenAI = (OpenAIMod.default ?? OpenAIMod) as new (
+    opts: Record<string, unknown>,
+  ) => {
+    chat: {
+      completions: {
+        create: (body: Record<string, unknown>) => Promise<{
+          id?: string;
+          choices: { message?: { content?: string } }[];
+        }>;
+      };
+    };
+  };
   const openai = new OpenAI({
     baseURL: endpoint,
     apiKey: "",

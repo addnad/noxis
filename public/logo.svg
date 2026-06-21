@@ -1,22 +1,19 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Noxis">
   <defs>
-    <linearGradient id="nx-stroke" x1="10" y1="38" x2="38" y2="10" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#6354E6"/>
-      <stop offset="0.55" stop-color="#9A8DFF"/>
-      <stop offset="1" stop-color="#B3A8FF"/>
+    <linearGradient id="nx-vio" x1="10" y1="38" x2="38" y2="10" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6F5FEE"/><stop offset="0.55" stop-color="#9A8DFF"/><stop offset="1" stop-color="#B9AEFF"/>
     </linearGradient>
-    <radialGradient id="nx-node" cx="0.5" cy="0.5" r="0.5">
-      <stop stop-color="#5BFFD2"/>
-      <stop offset="1" stop-color="#13C99B"/>
+    <linearGradient id="nx-core" x1="18" y1="18" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8576FF"/><stop offset="1" stop-color="#5E4FE0"/>
+    </linearGradient>
+    <radialGradient id="nx-cip" cx="0.5" cy="0.5" r="0.5">
+      <stop stop-color="#6AFFD6"/><stop offset="1" stop-color="#16C99B"/>
     </radialGradient>
   </defs>
-  <!-- N drawn as a single cipher stroke -->
-  <path d="M13 37 V13 L35 35 V11" stroke="url(#nx-stroke)" stroke-width="5"
-        stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- encryption node -->
-  <circle cx="24" cy="24" r="3.4" fill="url(#nx-node)"/>
-  <circle cx="24" cy="24" r="6.2" stroke="#2BF0BE" stroke-opacity="0.35" stroke-width="1.2"/>
-  <!-- cipher ticks -->
-  <path d="M7 24 H10.5" stroke="#9A8DFF" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round"/>
-  <path d="M37.5 24 H41" stroke="#9A8DFF" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round"/>
+  <g transform="rotate(-28 24 24)">
+    <ellipse cx="24" cy="24" rx="13" ry="6" stroke="url(#nx-vio)" stroke-width="2" fill="none"/>
+    <circle cx="37" cy="24" r="2.6" fill="url(#nx-cip)"/>
+  </g>
+  <circle cx="24" cy="24" r="5" fill="url(#nx-core)"/>
+  <circle cx="24" cy="24" r="5" stroke="#B9AEFF" stroke-opacity="0.6" stroke-width="0.9"/>
 </svg>
