@@ -1,0 +1,22 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Noxis">
+  <defs>
+    <linearGradient id="nx-stroke" x1="10" y1="38" x2="38" y2="10" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6354E6"/>
+      <stop offset="0.55" stop-color="#9A8DFF"/>
+      <stop offset="1" stop-color="#B3A8FF"/>
+    </linearGradient>
+    <radialGradient id="nx-node" cx="0.5" cy="0.5" r="0.5">
+      <stop stop-color="#5BFFD2"/>
+      <stop offset="1" stop-color="#13C99B"/>
+    </radialGradient>
+  </defs>
+  <!-- N drawn as a single cipher stroke -->
+  <path d="M13 37 V13 L35 35 V11" stroke="url(#nx-stroke)" stroke-width="5"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- encryption node -->
+  <circle cx="24" cy="24" r="3.4" fill="url(#nx-node)"/>
+  <circle cx="24" cy="24" r="6.2" stroke="#2BF0BE" stroke-opacity="0.35" stroke-width="1.2"/>
+  <!-- cipher ticks -->
+  <path d="M7 24 H10.5" stroke="#9A8DFF" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round"/>
+  <path d="M37.5 24 H41" stroke="#9A8DFF" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round"/>
+</svg>
