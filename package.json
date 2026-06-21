@@ -1,0 +1,33 @@
+{
+  "name": "noxis",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Noxis — your encrypted second brain on 0G. Notes encrypted client-side, stored on 0G Storage, queried with verifiable 0G Compute.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@0glabs/0g-serving-broker": "0.7.8",
+    "@0glabs/0g-ts-sdk": "0.3.3",
+    "crypto-js": "4.2.0",
+    "ethers": "6.13.1",
+    "framer-motion": "12.40.0",
+    "next": "15.5.19",
+    "openai": "6.44.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "4.2.2",
+    "@types/node": "22.10.2",
+    "@types/react": "19.0.2",
+    "@types/react-dom": "19.0.2",
+    "autoprefixer": "10.4.20",
+    "postcss": "8.4.49",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.7.2"
+  }
+}
