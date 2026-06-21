@@ -3,8 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { LogoMark } from "./Logo";
-import { DecryptText } from "./DecryptText";
-import { StatusStrip, useStatus } from "./StatusBar";
 import { CHAIN_EXPLORER, STORAGE_EXPLORER } from "@/lib/zg/config";
 import {
   listNotes,
@@ -65,7 +63,6 @@ export function Workspace({ onLock }: { onLock: () => void }) {
   const [view, setView] = useState<View>("capture");
   const [items, setItems] = useState<ListItem[]>([]);
   const [query, setQuery] = useState("");
-  const { status, refresh } = useStatus(15000);
 
   // editor state
   const [editId, setEditId] = useState<string | null>(null);
@@ -149,7 +146,6 @@ export function Workspace({ onLock }: { onLock: () => void }) {
       setReceipt(meta);
       setSaveStep("");
       await refreshList();
-      refresh();
     } catch (e) {
       setSaveStep("");
       setVerifyMsg("✕ " + (e as Error).message);
@@ -230,7 +226,6 @@ export function Workspace({ onLock }: { onLock: () => void }) {
       });
     } finally {
       setAsking(false);
-      refresh();
     }
   }
 
@@ -249,9 +244,6 @@ export function Workspace({ onLock }: { onLock: () => void }) {
             Noxis
           </span>
           <span className="pill pill-violet ml-1">vault open</span>
-        </div>
-        <div className="hidden lg:block">
-          <StatusStrip status={status} />
         </div>
         <button onClick={lock} className="btn btn-ghost py-2 text-[13px]">
           ⨯ Lock vault
@@ -577,9 +569,6 @@ export function Workspace({ onLock }: { onLock: () => void }) {
 
       <footer className="mono flex items-center justify-between border-t border-violet-500/10 pt-3 text-[10px] text-mist-500">
         <span>NOXIS · encrypted second brain</span>
-        <span className="lg:hidden">
-          <StatusStrip status={status} />
-        </span>
         <span>0G Storage + 0G Compute</span>
       </footer>
     </div>

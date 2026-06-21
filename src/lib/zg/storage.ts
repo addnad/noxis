@@ -3,14 +3,32 @@ import { promises as fs } from "fs";
 import os from "os";
 import path from "path";
 import { randomBytes } from "crypto";
-import { Indexer, MemData } from "@0glabs/0g-ts-sdk";
+// Type-only imports (erased at runtime); values are loaded dynamically below to
+// avoid Vercel's serverless ESM named-export resolution failures.
+import type { Indexer as IndexerType, MemData as MemDataType } from "@0glabs/0g-ts-sdk";
 import { getWallet } from "./broker";
 import { ZG_EVM_RPC, ZG_INDEXER_RPC } from "./config";
 
-const g = globalThis as unknown as { __noxisIndexer?: Indexer };
+type StorageSdk = { Indexer: typeof IndexerType; MemData: typeof MemDataType };
 
-function getIndexer(): Indexer {
-  if (!g.__noxisIndexer) g.__noxisIndexer = new Indexer(ZG_INDEXER_RPC);
+async function loadStorageSdk(): Promise<StorageSdk> {
+  const mod = (await import("@0glabs/0g-ts-sdk")) as Record<string, unknown> & {
+    default?: Record<string, unknown>;
+  };
+  const src = (mod.Indexer ? mod : (mod.default ?? mod)) as Record<string, unknown>;
+  return {
+    Indexer: src.Indexer as typeof IndexerType,
+    MemData: src.MemData as typeof MemDataType,
+  };
+}
+
+const g = globalThis as unknown as { __noxisIndexer?: IndexerType };
+
+async function getIndexer(): Promise<IndexerType> {
+  if (!g.__noxisIndexer) {
+    const { Indexer } = await loadStorageSdk();
+    g.__noxisIndexer = new Indexer(ZG_INDEXER_RPC);
+  }
   return g.__noxisIndexer;
 }
 
@@ -25,9 +43,10 @@ export interface UploadResult {
  * Returns the Merkle root hash that addresses the blob forever.
  */
 export async function uploadBytes(data: Uint8Array): Promise<UploadResult> {
-  const indexer = getIndexer();
+  const indexer = await getIndexer();
   const signer = getWallet();
 
+  const { MemData } = await loadStorageSdk();
   const file = new MemData(data);
 
   // Precompute the root so we can still return it even if the network already
@@ -72,7 +91,7 @@ export async function uploadBytes(data: Uint8Array): Promise<UploadResult> {
  * The SDK writes to a file path, so we round-trip through the tmp dir.
  */
 export async function downloadBytes(rootHash: string): Promise<Uint8Array> {
-  const indexer = getIndexer();
+  const indexer = await getIndexer();
   const tmp = path.join(os.tmpdir(), `noxis-${randomBytes(8).toString("hex")}`);
   try {
     const err = await indexer.download(rootHash, tmp, true);
