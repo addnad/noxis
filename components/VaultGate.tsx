@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { KeyRound, Lock, ShieldCheck, Database, Cpu, Trash2, User } from "lucide-react"
+import { KeyRound, Lock, ShieldCheck, Database, Cpu, Trash2, User, ArrowLeft, ArrowRight } from "lucide-react"
 import ThemeToggle from "./ThemeToggle"
 import {
   isVaultInitialized,
@@ -32,6 +32,7 @@ export default function VaultGate({
   const [confirm, setConfirm] = useState("")
   const [error, setError] = useState("")
   const [busy, setBusy] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
 
   // Pre-fill the username on return visits / refresh so users only type the passphrase.
   useEffect(() => {
@@ -111,13 +112,21 @@ export default function VaultGate({
           <span className="text-[17px] font-semibold tracking-tight">Noxis</span>
         </div>
         <div className="flex items-center gap-3">
+          {showLogin && (
+            <button
+              onClick={() => { setShowLogin(false); setError("") }}
+              className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 lg:hidden dark:text-zinc-400 dark:hover:text-zinc-100"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back
+            </button>
+          )}
           <ThemeToggle theme={theme} setTheme={setTheme} />
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-12 px-6 py-10 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="mx-auto grid w-full max-w-md flex-1 items-center gap-12 px-6 py-10 lg:max-w-6xl lg:grid-cols-[1.05fr_0.95fr]">
         {/* hero */}
-        <div>
+        <div className={showLogin ? "hidden lg:block" : "block"}>
           <h1 className="text-balance font-mono text-3xl font-semibold leading-[1.08] tracking-tight sm:text-4xl">
             {typed}
           </h1>
@@ -140,10 +149,18 @@ export default function VaultGate({
               </div>
             ))}
           </div>
+
+          {/* Mobile CTA — reveals the login portal */}
+          <button
+            onClick={() => setShowLogin(true)}
+            className="mt-9 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3.5 text-sm font-medium text-white transition hover:bg-zinc-800 lg:hidden dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+          >
+            {mode === "create" ? "Get started" : "Unlock your vault"} <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
 
         {/* access card */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div className={showLogin ? "block rounded-2xl border border-zinc-200 bg-white p-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900" : "hidden rounded-2xl border border-zinc-200 bg-white p-7 shadow-sm lg:block dark:border-zinc-800 dark:bg-zinc-900"}>
           <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-zinc-900 px-3 py-1 text-xs font-medium text-white dark:bg-white dark:text-zinc-900">
             <Lock className="h-3.5 w-3.5" /> Encrypted vault
           </div>
