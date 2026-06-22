@@ -129,7 +129,7 @@ export default function NoteEditor({
           {meta ? "Editing note" : "New note"}
         </span>
         {receipt && (
-          <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+          <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">
             <ShieldCheck className="h-3 w-3" /> On 0G
           </span>
         )}
@@ -155,7 +155,19 @@ export default function NoteEditor({
           placeholder="Untitled memory"
           className="w-full bg-transparent text-3xl font-semibold tracking-tight outline-none placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
         />
-        <div className="mt-1 font-mono text-[11px] text-zinc-400">{body.length} chars · encrypted on this device before upload</div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-[11px] font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">
+            <Lock className="h-3 w-3" />
+            Encrypted on device
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 font-mono text-[11px] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+            {body.trim() ? body.trim().split(/\s+/).length : 0} words
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 font-mono text-[11px] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+            {body.length} chars
+          </span>
+          <span className="font-mono text-[11px] text-zinc-400">AES-256-GCM</span>
+        </div>
 
         <textarea
           value={body}

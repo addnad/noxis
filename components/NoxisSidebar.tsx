@@ -155,7 +155,7 @@ export default function NoxisSidebar({
                     {preview || "Empty note"}
                   </div>
                   <div className="mt-1 flex items-center gap-2 pl-5">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-medium text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 text-[9px] font-medium text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
                       ● 0G
                     </span>
                     <span className="text-[10px] text-zinc-400">{timeAgo(meta.updatedAt)}</span>

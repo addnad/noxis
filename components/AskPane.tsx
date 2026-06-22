@@ -146,7 +146,7 @@ export default function AskPane({
                         className={cls(
                           "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
                           turn.verified
-                            ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
+                            ? "border border-zinc-200 bg-zinc-50 text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
                             : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400",
                         )}
                       >
