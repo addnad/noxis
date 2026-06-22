@@ -81,13 +81,13 @@ export default function AskPane({
         </button>
         <Sparkles className="h-4 w-4 text-zinc-500" />
         <span className="text-sm font-semibold tracking-tight">Ask your vault</span>
-        <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-zinc-200 px-2 py-0.5 text-[11px] text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-          <Cpu className="h-3 w-3" /> 0G Compute · verifiable
+        <span className="ml-auto hidden items-center gap-1 rounded-full border border-zinc-200 px-2 py-0.5 text-[11px] text-zinc-500 sm:inline-flex dark:border-zinc-800 dark:text-zinc-400">
+          <Cpu className="h-3 w-3" /> Grounded in your notes
         </span>
       </div>
 
       {/* messages */}
-      <div className="flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-8">
+      <div className="flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-3 py-6 sm:px-8">
         {turns.length === 0 && (
           <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center text-center">
             <div className="grid h-12 w-12 place-items-center rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
@@ -121,7 +121,7 @@ export default function AskPane({
             )}
             <div
               className={cls(
-                "max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm shadow-sm",
+                "max-w-[85%] min-w-0 break-words rounded-2xl px-3.5 py-2.5 text-sm shadow-sm sm:max-w-[80%]",
                 turn.role === "user"
                   ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
                   : turn.error
@@ -178,7 +178,7 @@ export default function AskPane({
       </div>
 
       {/* composer */}
-      <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="border-t border-zinc-200 p-3 sm:p-4 dark:border-zinc-800">
         <form
           onSubmit={ask}
           className="mx-auto flex max-w-3xl items-end gap-2 rounded-3xl border border-zinc-200 bg-white px-3 py-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
