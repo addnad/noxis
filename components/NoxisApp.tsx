@@ -5,6 +5,8 @@ import VaultGate from "./VaultGate"
 import NoxisSidebar from "./NoxisSidebar"
 import NoteEditor from "./NoteEditor"
 import AskPane from "./AskPane"
+import { scheduleReminders } from "@/lib/reminders"
+import { enableRemindersIfNeeded } from "@/lib/reminders"
 import {
   isUnlocked,
   listNotes,
@@ -70,6 +72,10 @@ export default function NoxisApp() {
   useEffect(() => {
     if (unlocked) refreshNotes()
   }, [unlocked, refreshNotes])
+
+  useEffect(() => {
+    if (unlocked) enableRemindersIfNeeded()
+  }, [unlocked])
 
   function newNote() {
     setSelectedId(null)
