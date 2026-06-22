@@ -49,7 +49,7 @@ export default function NoxisSidebar({
       )}
       <aside
         className={cls(
-          "z-50 flex h-screen w-[290px] shrink-0 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900",
+          "z-50 flex h-[100dvh] w-[290px] shrink-0 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900",
           "fixed inset-y-0 left-0 transition-transform md:static md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}

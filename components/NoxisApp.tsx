@@ -105,7 +105,7 @@ export default function NoxisApp() {
 
   const selected = items.find((i) => i.meta.id === selectedId) || null
 
-  if (!mounted) return <div className="h-screen w-full bg-background" />
+  if (!mounted) return <div className="h-[100dvh] w-full bg-background" />
 
   if (!unlocked) {
     return (
@@ -118,8 +118,8 @@ export default function NoxisApp() {
   }
 
   return (
-    <div className="h-screen w-full overflow-hidden bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-      <div className="mx-auto flex h-screen max-w-[1400px]">
+    <div className="h-[100dvh] w-full overflow-hidden bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+      <div className="mx-auto flex h-[100dvh] max-w-[1400px]">
         <NoxisSidebar
           items={items}
           selectedId={mode === "note" ? selectedId : "__ask__"}

@@ -61,6 +61,14 @@ Your notes and your index both live on 0G as ciphertext; only the tiny mutable
 pointer uses app infrastructure, because 0G testnet has no public mutable layer
 a new app can use without running its own KV node.
 
+## Daily journaling reminders
+
+Noxis is installable as a PWA (Add to Home Screen). Once notifications are
+granted, a service worker subscribes to Web Push and a daily Vercel Cron job
+sends each subscriber a random journaling prompt — delivered by the OS even
+when the app is closed. Subscriptions live in the same serverless KV; the prompt
+text is chosen server-side per send.
+
 ## Architecture
 
 ```
@@ -88,6 +96,8 @@ question -> local RAG select -> decrypt top-k -> /api/chat --> inference --> ans
   proving decentralized retrieval (not just local cache).
 - **Cross-device unlock** — same username + passphrase on a new device rebuilds
   the whole vault from 0G.
+- **Daily reminders** — installable as a PWA; once notifications are allowed, a
+  daily Web Push nudges you to journal a moment, even when the app is closed.
 - **Cited answers** — responses cite `[n]` back to the source memories.
 
 ## Run locally
