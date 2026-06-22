@@ -75,7 +75,7 @@ export default function AskPane({
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* top bar */}
-      <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-zinc-200 bg-white/80 px-4 py-3 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/70">
+      <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-zinc-200 bg-white/80 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/70">
         <button onClick={onOpenMenu} className="rounded-lg p-2 hover:bg-zinc-100 md:hidden dark:hover:bg-zinc-800">
           <Menu className="h-5 w-5" />
         </button>
