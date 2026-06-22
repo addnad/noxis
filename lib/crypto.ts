@@ -24,6 +24,26 @@ export function randomBytes(n: number): Uint8Array {
   return b;
 }
 
+// Deterministic salt derived from the username, so the same username + passphrase
+// yields the same key on any device (enables cross-device sync). The username is
+// namespaced to avoid collisions with other apps' derivations.
+export async function saltFromUsername(username: string): Promise<Uint8Array> {
+  const normalized = username.trim().toLowerCase();
+  const data = enc.encode(`noxis:v1:${normalized}`);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return new Uint8Array(hash).slice(0, 16);
+}
+
+// Derive a short, stable, NON-secret identifier for a username — used as the
+// public pointer key in the sync store. Derived from username only (no passphrase),
+// so it reveals nothing about the key.
+export async function userHandle(username: string): Promise<string> {
+  const normalized = username.trim().toLowerCase();
+  const data = enc.encode(`noxis:handle:v1:${normalized}`);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return toB64(new Uint8Array(hash).slice(0, 12)).replace(/[^a-zA-Z0-9]/g, "");
+}
+
 export async function deriveKey(
   passphrase: string,
   salt: Uint8Array,

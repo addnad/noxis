@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { KeyRound, Lock, ShieldCheck, Database, Cpu, Trash2 } from "lucide-react"
+import { KeyRound, Lock, ShieldCheck, Database, Cpu, Trash2, User } from "lucide-react"
 import ThemeToggle from "./ThemeToggle"
 import {
   isVaultInitialized,
@@ -27,10 +27,22 @@ export default function VaultGate({
 }) {
   const initialized = typeof window !== "undefined" ? isVaultInitialized() : false
   const mode: "create" | "unlock" = initialized ? "unlock" : "create"
+  const [username, setUsername] = useState("")
   const [pass, setPass] = useState("")
   const [confirm, setConfirm] = useState("")
   const [error, setError] = useState("")
   const [busy, setBusy] = useState(false)
+
+  // Pre-fill the username on return visits / refresh so users only type the passphrase.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("noxis.vault.v1")
+      if (raw) {
+        const v = JSON.parse(raw)
+        if (v?.username) setUsername(v.username)
+      }
+    } catch {}
+  }, [])
 
   // Decypher / scramble effect for the hero headline
   const FULL_HEADLINE = "YOUR MIND, END-TO-END ENCRYPTED."
@@ -59,15 +71,16 @@ export default function VaultGate({
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
+    if (username.trim().length < 3) return setError("Username must be at least 3 characters.")
     if (pass.length < 8) return setError("Use at least 8 characters.")
     if (mode === "create" && pass !== confirm) return setError("Passphrases do not match.")
     setBusy(true)
     try {
       if (mode === "create") {
-        await createVault(pass)
+        await createVault(username, pass)
         onEnter()
       } else {
-        const ok = await unlockVault(pass)
+        const ok = await unlockVault(username, pass)
         if (ok) onEnter()
         else setError("Wrong passphrase. The vault could not be decrypted.")
       }
@@ -145,10 +158,25 @@ export default function VaultGate({
 
           <form onSubmit={submit} className="mt-6 space-y-3">
             <div className="relative">
+              <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <input
+                type="text"
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
+                autoFocus={mode === "create"}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-3 pl-10 pr-3 text-sm outline-none focus:border-zinc-400 focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-zinc-600 dark:focus:ring-white/10"
+              />
+            </div>
+            <div className="relative">
               <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
               <input
                 type="password"
-                autoFocus
+                autoComplete={mode === "create" ? "new-password" : "current-password"}
+                autoFocus={mode === "unlock"}
                 value={pass}
                 onChange={(e) => setPass(e.target.value)}
                 placeholder="Passphrase"

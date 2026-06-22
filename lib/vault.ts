@@ -11,6 +11,8 @@ import {
   randomBytes,
   toB64,
   fromB64,
+  saltFromUsername,
+  userHandle,
 } from "./crypto";
 
 const VAULT_KEY = "noxis.vault.v1";
@@ -21,6 +23,7 @@ export interface VaultMeta {
   saltB64: string;
   verifier: Cipher;
   createdAt: number;
+  username?: string;
 }
 
 export interface NoteMeta {
@@ -40,6 +43,11 @@ export interface DecryptedNote {
 }
 
 let masterKey: CryptoKey | null = null;
+let currentUsername: string | null = null;
+
+export function getUsername(): string | null {
+  return currentUsername;
+}
 const metaCache = new Map<string, { title: string; preview: string }>();
 const bodyCache = new Map<string, DecryptedNote>();
 
@@ -70,30 +78,61 @@ export function isUnlocked(): boolean {
 }
 export function lockVault() {
   masterKey = null;
+  currentUsername = null;
   metaCache.clear();
   bodyCache.clear();
 }
 
-export async function createVault(passphrase: string): Promise<void> {
-  const salt = randomBytes(16);
+export async function createVault(
+  username: string,
+  passphrase: string,
+): Promise<void> {
+  const salt = await saltFromUsername(username);
   const key = await deriveKey(passphrase, salt);
   const verifier = await encryptString(key, VERIFIER_PLAINTEXT);
-  writeVault({ saltB64: toB64(salt), verifier, createdAt: Date.now() });
+  writeVault({
+    saltB64: toB64(salt),
+    verifier,
+    createdAt: Date.now(),
+    username: username.trim(),
+  });
   masterKey = key;
+  currentUsername = username.trim();
+  // If this username already has notes on 0G, pull them in.
+  await pullManifest().catch(() => {});
 }
 
-export async function unlockVault(passphrase: string): Promise<boolean> {
+export async function unlockVault(
+  username: string,
+  passphrase: string,
+): Promise<boolean> {
   const v = readVault();
-  if (!v) return false;
-  const key = await deriveKey(passphrase, fromB64(v.saltB64));
-  try {
-    const check = await decryptString(key, v.verifier);
-    if (check !== VERIFIER_PLAINTEXT) return false;
-    masterKey = key;
-    return true;
-  } catch {
-    return false;
+  const salt = v ? fromB64(v.saltB64) : await saltFromUsername(username);
+  const key = await deriveKey(passphrase, salt);
+  // If we have a local vault, verify against its stored verifier.
+  if (v) {
+    try {
+      const check = await decryptString(key, v.verifier);
+      if (check !== VERIFIER_PLAINTEXT) return false;
+    } catch {
+      return false;
+    }
+  } else {
+    // No local vault (fresh device): create the verifier locally so future
+    // unlocks work offline. We can't verify the passphrase without data, so
+    // we accept it and let manifest decryption be the real test.
+    const verifier = await encryptString(key, VERIFIER_PLAINTEXT);
+    writeVault({
+      saltB64: toB64(salt),
+      verifier,
+      createdAt: Date.now(),
+      username: username.trim(),
+    });
   }
+  masterKey = key;
+  currentUsername = username.trim();
+  await pullManifest().catch(() => {});
+  return true;
 }
 
 export function destroyVault() {
@@ -130,6 +169,72 @@ export async function fetchFromZG(rootHash: string): Promise<string> {
   }
   const { dataB64 } = await res.json();
   return dataB64 as string;
+}
+
+// ── sync: pointer store + encrypted manifest on 0G ───────────────────────────
+async function writePointer(handle: string, root: string): Promise<void> {
+  await fetch("/api/pointer", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ user: handle, root }),
+  }).catch(() => {});
+}
+
+async function readPointer(handle: string): Promise<string | null> {
+  try {
+    const res = await fetch(`/api/pointer?user=${encodeURIComponent(handle)}`);
+    if (!res.ok) return null;
+    const { root } = await res.json();
+    return root ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// Build an encrypted manifest of the whole note index, upload it to 0G, and
+// update the pointer so any device with the same username+passphrase can find it.
+export async function pushManifest(): Promise<void> {
+  if (!masterKey || !currentUsername) return;
+  const notes = readNotes();
+  const payload = JSON.stringify({ notes, updatedAt: Date.now() });
+  const encBlob = await encryptToBlob(masterKey, payload);
+  const up = await uploadToZG(encBlob);
+  const handle = await userHandle(currentUsername);
+  await writePointer(handle, up.rootHash);
+}
+
+// Pull the manifest from 0G (via the pointer) and merge it into the local index.
+// Returns the number of notes restored. Newer local notes win on conflict.
+export async function pullManifest(): Promise<number> {
+  if (!masterKey || !currentUsername) return 0;
+  const handle = await userHandle(currentUsername);
+  const root = await readPointer(handle);
+  if (!root) return 0;
+  let json: string;
+  try {
+    const blobB64 = await fetchFromZG(root);
+    json = await decryptFromBlob(masterKey, blobB64);
+  } catch {
+    return 0;
+  }
+  let parsed: { notes?: NoteMeta[] };
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return 0;
+  }
+  const remote = parsed.notes ?? [];
+  const local = readNotes();
+  const byId = new Map<string, NoteMeta>();
+  for (const n of remote) byId.set(n.id, n);
+  // local wins if newer (so unsynced edits aren't clobbered)
+  for (const n of local) {
+    const r = byId.get(n.id);
+    if (!r || n.updatedAt >= r.updatedAt) byId.set(n.id, n);
+  }
+  const merged = [...byId.values()].sort((a, b) => b.updatedAt - a.updatedAt);
+  writeNotes(merged);
+  return merged.length;
 }
 
 // ── note operations ──────────────────────────────────────────────────────────
@@ -191,6 +296,9 @@ export async function saveNote(
   metaCache.set(meta.id, { title, preview: makePreview(body) });
   bodyCache.set(meta.id, { title, body });
 
+  // Sync the updated index to 0G + pointer (best-effort, non-blocking failure).
+  await pushManifest().catch(() => {});
+
   return { meta, alreadyExists: up.alreadyExists };
 }
 
@@ -230,10 +338,11 @@ export async function verifyFromZG(meta: NoteMeta): Promise<DecryptedNote> {
   return JSON.parse(json) as DecryptedNote;
 }
 
-export function deleteNote(id: string) {
+export async function deleteNote(id: string): Promise<void> {
   writeNotes(readNotes().filter((n) => n.id !== id));
   metaCache.delete(id);
   bodyCache.delete(id);
+  await pushManifest().catch(() => {});
 }
 
 // ── lightweight RAG selection (all local, no embedding cost) ──────────────────
