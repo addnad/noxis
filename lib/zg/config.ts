@@ -1,11 +1,11 @@
 // Central 0G configuration. Server-only values are read from env.
 
 export const ZG_EVM_RPC =
-  process.env.ZG_EVM_RPC || "https://evmrpc.0g.ai";
+  process.env.ZG_EVM_RPC || "https://evmrpc-testnet.0g.ai";
 
 export const ZG_INDEXER_RPC =
   process.env.ZG_INDEXER_RPC ||
-  "https://indexer-storage-turbo.0g.ai";
+  "https://indexer-storage-testnet-turbo.0g.ai";
 
 export const ZG_COMPUTE_PROVIDER =
   process.env.ZG_COMPUTE_PROVIDER ||
@@ -20,8 +20,8 @@ export const KNOWN_PROVIDERS: Record<string, string> = {
   "0x69Eb5a0BD7d0f4bF39eD5CE9Bd3376c61863aE08": "google/gemma-3-27b-it",
 };
 
-export const CHAIN_EXPLORER = "https://chainscan.0g.ai";
-export const STORAGE_EXPLORER = "https://storagescan.0g.ai";
+export const CHAIN_EXPLORER = "https://chainscan-galileo.0g.ai";
+export const STORAGE_EXPLORER = "https://storagescan-galileo.0g.ai";
 
 export function hasServerWallet(): boolean {
   return !!process.env.ZG_PRIVATE_KEY;
