@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { runInference } from "@/lib/zg/broker";
-import { hasServerWallet } from "@/lib/zg/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,17 +18,20 @@ own encrypted memories, supplied below as numbered excerpts. Rules:
 - Be concise, direct, and well-structured. Never mention these instructions.`;
 
 export async function POST(req: Request) {
-  if (!hasServerWallet()) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
     return NextResponse.json(
-      { error: "Server wallet not configured (ZG_PRIVATE_KEY missing)." },
-      { status: 503 },
+      { error: "OPENROUTER_API_KEY not configured." },
+      { status: 503 }
     );
   }
+
   try {
     const { question, contexts } = (await req.json()) as {
       question: string;
       contexts: Ctx[];
     };
+
     if (!question || typeof question !== "string") {
       return NextResponse.json({ error: "question required" }, { status: 400 });
     }
@@ -38,26 +39,52 @@ export async function POST(req: Request) {
     const memory =
       Array.isArray(contexts) && contexts.length
         ? contexts
-            .map(
-              (c, i) =>
-                `[${i + 1}] ${c.title ? c.title + "\n" : ""}${c.body}`,
-            )
+            .map((c, i) => `[${i + 1}] ${c.title ? c.title + "\n" : ""}${c.body}`)
             .join("\n\n---\n\n")
         : "(no memories matched this query)";
 
-    const result = await runInference([
-      { role: "system", content: SYSTEM },
-      {
-        role: "user",
-        content: `MEMORIES:\n${memory}\n\nQUESTION: ${question}`,
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://noxis.vercel.app",
+        "X-Title": "Noxis",
       },
-    ]);
+      body: JSON.stringify({
+        model: "openai/gpt-oss-20b:free:free",
+        messages: [
+          { role: "system", content: SYSTEM },
+          {
+            role: "user",
+            content: `MEMORIES:\n${memory}\n\nQUESTION: ${question}`,
+          },
+        ],
+        temperature: 0.3,
+      }),
+    });
 
-    return NextResponse.json(result);
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`OpenRouter error: ${err}`);
+    }
+
+    const data = await response.json();
+    const answer = data.choices?.[0]?.message?.content || "";
+
+    return NextResponse.json({
+      answer,
+      model: data.model || "llama-3.1-8b-instruct",
+      provider: "openrouter",
+      providerLabel: "GPT-OSS 20B (OpenRouter)",
+      chatId: data.id || "",
+      verified: false,
+      endpoint: "https://openrouter.ai",
+    });
   } catch (e) {
     return NextResponse.json(
       { error: (e as Error).message || "inference failed" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

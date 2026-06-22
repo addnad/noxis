@@ -3,16 +3,16 @@ import { promises as fs } from "fs";
 import os from "os";
 import path from "path";
 import { randomBytes } from "crypto";
-// Type-only imports (erased at runtime); values are loaded dynamically below to
-// avoid Vercel's serverless ESM named-export resolution failures.
-import type { Indexer as IndexerType, MemData as MemDataType } from "@0glabs/0g-ts-sdk";
+import type { Indexer as IndexerType, MemData as MemDataType } from "@0gfoundation/0g-storage-ts-sdk";
 import { getWallet } from "./broker";
 import { ZG_EVM_RPC, ZG_INDEXER_RPC } from "./config";
+
+const MIN_SIZE = 256;
 
 type StorageSdk = { Indexer: typeof IndexerType; MemData: typeof MemDataType };
 
 async function loadStorageSdk(): Promise<StorageSdk> {
-  const mod = (await import("@0glabs/0g-ts-sdk")) as Record<string, unknown> & {
+  const mod = (await import("@0gfoundation/0g-storage-ts-sdk")) as Record<string, unknown> & {
     default?: Record<string, unknown>;
   };
   const src = (mod.Indexer ? mod : (mod.default ?? mod)) as Record<string, unknown>;
@@ -38,19 +38,19 @@ export interface UploadResult {
   alreadyExists: boolean;
 }
 
-/**
- * Upload raw bytes (already client-side encrypted) to 0G Storage.
- * Returns the Merkle root hash that addresses the blob forever.
- */
 export async function uploadBytes(data: Uint8Array): Promise<UploadResult> {
+  // Pad to minimum chunk size to satisfy the flow contract
+  let padded = data;
+  if (data.length < MIN_SIZE) {
+    padded = new Uint8Array(MIN_SIZE);
+    padded.set(data);
+  }
+
   const indexer = await getIndexer();
   const signer = getWallet();
-
   const { MemData } = await loadStorageSdk();
-  const file = new MemData(data);
+  const file = new MemData(padded);
 
-  // Precompute the root so we can still return it even if the network already
-  // has this content (identical ciphertext -> identical root).
   const [tree, treeErr] = await file.merkleTree();
   if (treeErr !== null || !tree) {
     throw new Error(`merkleTree failed: ${treeErr}`);
@@ -58,8 +58,6 @@ export async function uploadBytes(data: Uint8Array): Promise<UploadResult> {
   const rootHash = tree.rootHash() || "";
 
   try {
-    // The SDK bundles its own ethers build; the Wallet is runtime-compatible
-    // but its Signer type differs, so we bridge across the type boundary.
     const [res, uploadErr] = await indexer.upload(
       file,
       ZG_EVM_RPC,
@@ -73,8 +71,8 @@ export async function uploadBytes(data: Uint8Array): Promise<UploadResult> {
       throw new Error(msg);
     }
     return {
-      rootHash: res?.rootHash || rootHash,
-      txHash: res?.txHash || "",
+      rootHash: (res as any)?.rootHash || rootHash,
+      txHash: (res as any)?.txHash || "",
       alreadyExists: false,
     };
   } catch (e) {
@@ -86,10 +84,6 @@ export async function uploadBytes(data: Uint8Array): Promise<UploadResult> {
   }
 }
 
-/**
- * Download bytes addressed by a 0G Storage root hash.
- * The SDK writes to a file path, so we round-trip through the tmp dir.
- */
 export async function downloadBytes(rootHash: string): Promise<Uint8Array> {
   const indexer = await getIndexer();
   const tmp = path.join(os.tmpdir(), `noxis-${randomBytes(8).toString("hex")}`);
