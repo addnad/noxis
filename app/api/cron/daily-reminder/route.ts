@@ -62,7 +62,7 @@ export async function GET(req: Request) {
       continue;
     }
     const payload = JSON.stringify({
-      title: "Journal A Moment",
+      title: "Noxis — Journal A Moment",
       body: randomPrompt(),
     });
     try {

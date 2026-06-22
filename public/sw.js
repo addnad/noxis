@@ -10,7 +10,7 @@ self.addEventListener("activate", (event) => {
 
 // Show a notification when a push arrives (works even when the app is closed).
 self.addEventListener("push", (event) => {
-  let data = { title: "Journal A Moment", body: "Capture a thought before it fades." };
+  let data = { title: "Noxis — Journal A Moment", body: "Capture a thought before it fades." };
   try {
     if (event.data) data = { ...data, ...event.data.json() };
   } catch {}
