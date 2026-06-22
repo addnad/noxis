@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { KeyRound, Lock, ShieldCheck, Database, Cpu } from "lucide-react"
+import { useState, useEffect } from "react"
+import { KeyRound, Lock, ShieldCheck, Database, Cpu, Trash2 } from "lucide-react"
 import ThemeToggle from "./ThemeToggle"
 import {
   isVaultInitialized,
@@ -31,6 +31,30 @@ export default function VaultGate({
   const [confirm, setConfirm] = useState("")
   const [error, setError] = useState("")
   const [busy, setBusy] = useState(false)
+
+  // Decypher / scramble effect for the hero headline
+  const FULL_HEADLINE = "YOUR MIND, END-TO-END ENCRYPTED."
+  const [typed, setTyped] = useState("")
+  useEffect(() => {
+    const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*<>/"
+    let frame = 0
+    const id = setInterval(() => {
+      frame++
+      // How many characters are "locked in" (resolved) so far
+      const revealed = frame / 3
+      const out = FULL_HEADLINE.split("").map((ch, idx) => {
+        if (ch === " ") return " "
+        if (idx < revealed) return ch
+        return CHARS[Math.floor(Math.random() * CHARS.length)]
+      }).join("")
+      setTyped(out)
+      if (revealed >= FULL_HEADLINE.length) {
+        setTyped(FULL_HEADLINE)
+        clearInterval(id)
+      }
+    }, 40)
+    return () => clearInterval(id)
+  }, [])
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -67,21 +91,13 @@ export default function VaultGate({
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-      <header className="flex items-center justify-between px-6 py-5">
+      <header className="relative flex items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icon.svg" alt="Noxis" className="h-7 w-7 rounded-md" />
           <span className="text-[17px] font-semibold tracking-tight">Noxis</span>
         </div>
         <div className="flex items-center gap-3">
-          <a
-            href="https://0g.ai/arena/zero-cup"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden rounded-full border border-zinc-200 px-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-100 sm:inline-flex dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900"
-          >
-            The Zero Cup · 0G
-          </a>
           <ThemeToggle theme={theme} setTheme={setTheme} />
         </div>
       </header>
@@ -89,11 +105,8 @@ export default function VaultGate({
       <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-12 px-6 py-10 lg:grid-cols-[1.05fr_0.95fr]">
         {/* hero */}
         <div>
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-            <ShieldCheck className="h-3.5 w-3.5" /> Sovereign second brain
-          </div>
-          <h1 className="text-balance text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl">
-            Your mind, end-to-end encrypted.
+          <h1 className="text-balance font-mono text-3xl font-semibold leading-[1.08] tracking-tight sm:text-4xl">
+            {typed}
           </h1>
           <p className="mt-5 max-w-md text-[15px] leading-relaxed text-zinc-600 dark:text-zinc-400">
             Noxis turns your private notes into a searchable AI memory —
@@ -171,15 +184,15 @@ export default function VaultGate({
           {initialized && (
             <button
               onClick={reset}
-              className="mt-4 text-xs text-zinc-400 underline-offset-2 hover:text-red-500 hover:underline"
+              className="mt-5 inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium uppercase tracking-wide text-zinc-900 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-800"
             >
-              reset local vault
+              <Trash2 className="h-3.5 w-3.5" /> Reset local vault
             </button>
           )}
         </div>
       </div>
 
-      <footer className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-200 px-6 py-4 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+      <footer className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 border-t border-zinc-200 px-6 py-4 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
         <span className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> 0G Galileo Testnet
         </span>

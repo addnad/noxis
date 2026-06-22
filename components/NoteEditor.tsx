@@ -191,13 +191,13 @@ export default function NoteEditor({
         {msg && (
           <div
             className={cls(
-              "mt-4 flex items-center gap-2 rounded-xl px-3 py-2 text-sm",
-              msg.kind === "ok" && "border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-400",
-              msg.kind === "err" && "border border-red-200 bg-red-50 text-red-600 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400",
-              msg.kind === "info" && "border border-zinc-200 bg-zinc-50 text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400",
+              "mt-4 flex items-center gap-2 rounded-xl border px-3 py-2 text-sm",
+              msg.kind === "ok" && "border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300",
+              msg.kind === "err" && "border-red-200 bg-red-50 text-red-600 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400",
+              msg.kind === "info" && "border-zinc-200 bg-zinc-50 text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400",
             )}
           >
-            {msg.kind === "ok" ? <Check className="h-4 w-4" /> : msg.kind === "err" ? <AlertCircle className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />}
+            {msg.kind === "ok" ? <Check className="h-4 w-4 text-emerald-500" /> : msg.kind === "err" ? <AlertCircle className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />}
             {msg.text}
           </div>
         )}

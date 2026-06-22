@@ -12,7 +12,10 @@ export const metadata: Metadata = {
     "Noxis turns your private notes into a searchable AI memory — encrypted in your browser, stored on 0G Storage, and queried with verifiable 0G Compute. Your keys, your mind.",
   applicationName: "Noxis",
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon-48.png", type: "image/png", sizes: "48x48" },
+    ],
     apple: "/apple-icon.png",
   },
 };
