@@ -13,7 +13,7 @@ import {
 const FEATURES = [
   { icon: Lock, title: "Encrypted on your device", desc: "AES-256 from your passphrase. The key never leaves your browser." },
   { icon: Database, title: "Stored on 0G Storage", desc: "Each note is an opaque blob addressed by a Merkle root." },
-  { icon: Cpu, title: "Answered by verifiable AI", desc: "Questions run on TEE-attested 0G Compute, settled on-chain." },
+  { icon: Cpu, title: "Answered by AI", desc: "Ask questions and get answers grounded only in your own encrypted notes." },
 ]
 
 export default function VaultGate({
@@ -133,7 +133,7 @@ export default function VaultGate({
           <p className="mt-5 max-w-md text-[15px] leading-relaxed text-zinc-600 dark:text-zinc-400">
             Noxis turns your private notes into a searchable AI memory —
             encrypted in your browser, stored on 0G Storage, and queried with
-            verifiable 0G Compute. No one but you holds the key.
+            an AI that answers only from your own notes. No one but you holds the key.
           </p>
 
           <div className="mt-8 space-y-3">

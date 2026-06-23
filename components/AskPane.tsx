@@ -96,7 +96,7 @@ export default function AskPane({
             <h3 className="mt-4 text-xl font-semibold tracking-tight">Ask your encrypted mind</h3>
             <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               Answers come only from your own notes ({noteCount}). Relevant memories
-              are selected locally, then reasoned over by verifiable 0G Compute.
+              are selected locally, then reasoned over to answer your question.
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
               {SUGGESTIONS.map((s) => (
@@ -136,7 +136,7 @@ export default function AskPane({
                     <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.15s]" />
                     <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400" />
                   </div>
-                  routing through 0G Compute…
+                  reasoning over your notes…
                 </div>
               ) : (
                 <>
@@ -150,7 +150,7 @@ export default function AskPane({
                             : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400",
                         )}
                       >
-                        <ShieldCheck className="h-3 w-3" /> {turn.verified ? "TEE-verified" : "unverified"}
+                        <ShieldCheck className="h-3 w-3" /> {turn.verified ? "verified" : "grounded in your notes"}
                       </span>
                       {turn.model && <span className="font-mono text-[10px] text-zinc-400">{turn.model}</span>}
                     </div>
