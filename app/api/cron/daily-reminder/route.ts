@@ -28,9 +28,14 @@ function randomPrompt(): string {
 }
 
 export async function GET(req: Request) {
-  // Protect the endpoint: Vercel Cron sends Authorization: Bearer <CRON_SECRET>
+  // Accept the secret either as a Bearer header (Vercel Cron) or a ?key= query
+  // param (external schedulers that can't set headers).
   const auth = req.headers.get("authorization");
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  const { searchParams } = new URL(req.url);
+  const keyParam = searchParams.get("key");
+  const secret = process.env.CRON_SECRET;
+  const authorized = auth === `Bearer ${secret}` || keyParam === secret;
+  if (!authorized) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
